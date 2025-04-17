@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">
+                {% if object %}Edit {{ object.name }}{% else %}Add New Menu Item{% endif %}
+            </h1>
+            <a href="{% url 'menu' %}" class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Menu
+            </a>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 gap-6">
+                    {% for field in form %}
+                        <div class="space-y-2">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ field.label }}
+                            </label>
+                            <div class="mt-1">
+                                {{ field }}
+                            </div>
+                            {% if field.help_text %}
+                                <p class="text-sm text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="text-red-500 text-sm">
+                                    {{ field.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{% url 'menu' %}" 
+                       class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-full text-gray-700 bg-white hover:bg-gray-50 font-medium transition duration-300">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-medium transition duration-300">
+                        <i class="fas fa-save mr-2"></i>
+                        {% if object %}Update Item{% else %}Create Item{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Tailwind classes to form fields
+    const formFields = document.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
+    formFields.forEach(field => {
+        field.classList.add(
+            'w-full',
+            'px-4',
+            'py-2',
+            'border',
+            'border-gray-300',
+            'rounded-lg',
+            'focus:ring-2',
+            'focus:ring-amber-500',
+            'focus:border-amber-500',
+            'transition',
+            'duration-300'
+        );
+    });
+    
+    // Add specific classes for file input
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.classList.add(
+            'w-full',
+            'px-4',
+            'py-2',
+            'border',
+            'border-gray-300',
+            'rounded-lg',
+            'focus:ring-2',
+            'focus:ring-amber-500',
+            'focus:border-amber-500',
+            'transition',
+            'duration-300',
+            'file:mr-4',
+            'file:py-2',
+            'file:px-4',
+            'file:rounded-full',
+            'file:border-0',
+            'file:text-sm',
+            'file:font-medium',
+            'file:bg-amber-50',
+            'file:text-amber-700',
+            'hover:file:bg-amber-100'
+        );
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Checkout</h1>
+        <a href="{% url 'cart' %}" class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Cart
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Order Summary</h2>
+                <div class="space-y-4">
+            {% for cart_item in cart_items %}
+                    <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-800">{{ cart_item.item.name }}</h3>
+                                <p class="text-sm text-gray-600">{{ cart_item.quantity }} × ${{ cart_item.item.price }}</p>
+                            </div>
+                        </div>
+                        <span class="font-medium text-gray-800">${{ cart_item.subtotal|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center text-lg font-bold text-gray-800">
+                <span>Total</span>
+                <span>${{ total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Payment Method</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 transition-colors">
+                        <input type="radio" name="payment_method" id="card" class="text-amber-600 focus:ring-amber-500" checked>
+                        <label for="card" class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                            <span class="font-medium text-gray-800">Credit Card</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 transition-colors">
+                        <input type="radio" name="payment_method" id="cash" class="text-amber-600 focus:ring-amber-500">
+                        <label for="cash" class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span class="font-medium text-gray-800">Cash on Delivery</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="space-y-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Order Information</h2>
+                <form method="post" class="space-y-4" id="checkout-form">
+                {% csrf_token %}
+                    
+                    <!-- Order Type Selection -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Order Type</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative flex items-center justify-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 transition-colors">
+                                <input type="radio" name="order_type" value="delivery" class="sr-only peer" {% if form.order_type.value == 'delivery' %}checked{% endif %}>
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-6 h-6 text-gray-600 peer-checked:text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V5a1 1 0 00-1-1H4a1 1 0 00-1 1v11a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <span class="mt-2 text-sm font-medium">Delivery</span>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center justify-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 transition-colors">
+                                <input type="radio" name="order_type" value="pickup" class="sr-only peer" {% if form.order_type.value == 'pickup' %}checked{% endif %}>
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-6 h-6 text-gray-600 peer-checked:text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span class="mt-2 text-sm font-medium">Pickup</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address Form (shown only when delivery is selected) -->
+                    <div id="delivery-address-form" class="space-y-4 {% if form.order_type.value != 'delivery' %}hidden{% endif %}">
+                        <div class="space-y-2">
+                            <label for="address" class="block text-sm font-medium text-gray-700">Delivery Address</label>
+                            <textarea name="address" id="address" rows="3" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                                placeholder="Enter your full delivery address">{{ form.address.value|default:'' }}</textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" name="phone" id="phone" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                                placeholder="Enter your phone number for delivery"
+                                value="{{ form.phone.value|default:'' }}"
+                                pattern="[0-9]{10,15}"
+                                title="Please enter a valid phone number (10-15 digits)">
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="space-y-2">
+                        <label for="notes" class="block text-sm font-medium text-gray-700">Order Notes</label>
+                        <textarea name="notes" id="notes" rows="3" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                            placeholder="Any special instructions?">{{ form.notes.value|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-lg font-medium transition duration-300 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                    Place Order
+                </button>
+                    </div>
+            </form>
+            </div>
+            
+            <div class="bg-gray-50 rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Protection</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">Secure Payment</h4>
+                            <p class="text-sm text-gray-600">Your payment information is encrypted and secure</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V5a1 1 0 00-1-1H4a1 1 0 00-1 1v11a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">Fast Delivery</h4>
+                            <p class="text-sm text-gray-600">We deliver your order within 30-45 minutes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const orderTypeInputs = document.querySelectorAll('input[name="order_type"]');
+    const deliveryAddressForm = document.getElementById('delivery-address-form');
+    
+    function toggleDeliveryAddress() {
+        const selectedType = document.querySelector('input[name="order_type"]:checked').value;
+        deliveryAddressForm.classList.toggle('hidden', selectedType !== 'delivery');
+    }
+    
+    orderTypeInputs.forEach(input => {
+        input.addEventListener('change', toggleDeliveryAddress);
+    });
+    
+    // Initial state
+    toggleDeliveryAddress();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,487 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Manager Dashboard</h1>
+            <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Monitor and manage your restaurant operations</p>
+        </div>
+        <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+            <a href="{% url 'staff_create' %}" class="inline-flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                <i class="fas fa-user-plus mr-2"></i>
+                Add Staff
+            </a>
+            <a href="{% url 'table_create' %}" class="inline-flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                <i class="fas fa-plus mr-2"></i>
+                Add Table
+            </a>
+            <a href="{% url 'menu_item_create' %}" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                <i class="fas fa-utensils mr-2"></i>
+                Add Menu Item
+            </a>
+            <a href="{% url 'sales_report' %}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold text-sm rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <i class="fas fa-chart-line mr-2"></i> <!-- Report Icon -->
+                View Sales Report
+            </a>
+        </div>
+        
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Today's Orders</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{ total_orders }}</p>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">+{{ new_orders_today }} new today</p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-blue-600 text-lg sm:text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Today's Revenue</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">${{ revenue_today|floatformat:2 }}</p>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">+${{ revenue_increase|floatformat:2 }} vs yesterday</p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-green-600 text-lg sm:text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Pending Orders</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{ pending_orders }}</p>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">{{ pending_orders_time }} min avg wait</p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-clock text-yellow-600 text-lg sm:text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Active Staff</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{ active_staff.count }}</p>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">{{ available_tables }} tables available</p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-purple-600 text-lg sm:text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Overview -->
+    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-purple-600"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Staff Overview</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                <a href="{% url 'staff_list' %}" class="inline-flex items-center justify-center text-gray-600 hover:text-gray-800 font-medium text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Staff
+                </a>
+                <a href="{% url 'staff_create' %}" class="inline-flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Add Staff
+                </a>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for role, count in staff_stats.items %}
+            <div class="bg-gray-50 rounded-xl p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">{{ role }}</p>
+                        <p class="text-2xl font-bold text-gray-800">{{ count }}</p>
+                    </div>
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Tables Status -->
+    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chair text-amber-600"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Tables Status</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                <a href="{% url 'table_list' %}" class="inline-flex items-center justify-center text-gray-600 hover:text-gray-800 font-medium text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All
+                </a>
+                <a href="{% url 'table_create' %}" class="inline-flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                    <i class="fas fa-plus mr-2"></i>
+                Add Table
+            </a>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for table in tables %}
+            <div class="bg-gray-50 rounded-xl p-4 text-center hover:bg-gray-100 transition duration-300 {% if table.is_occupied %}border-2 border-red-200{% endif %}">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 rounded-full flex items-center justify-center {% if table.is_occupied %}bg-red-100{% else %}bg-green-100{% endif %}">
+                    <i class="fas fa-chair {% if table.is_occupied %}text-red-600{% else %}text-green-600{% endif %} text-lg sm:text-xl"></i>
+                </div>
+                <h3 class="font-bold text-base sm:text-lg text-gray-800">Table {{ table.number }}</h3>
+                <p class="text-gray-600 text-xs sm:text-sm">Capacity: {{ table.capacity }}</p>
+                <p class="mt-2">
+                    <span class="px-2 sm:px-3 py-1 text-xs rounded-full font-medium
+                        {% if table.is_occupied %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                        {% if table.is_occupied %}
+                        Occupied
+                        {% else %}
+                        Available
+                        {% endif %}
+                    </span>
+                </p>
+                <div class="mt-3 space-x-2">
+                    <a href="{% url 'table_update' table.pk %}" class="text-amber-600 hover:text-amber-700 text-xs sm:text-sm font-medium inline-flex items-center">
+                        <i class="fas fa-edit mr-1"></i>
+                        Edit
+                    </a>
+                    {% if table.active_orders > 0 %}
+                    <a href="#" class="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium inline-flex items-center">
+                        <i class="fas fa-eye mr-1"></i>
+                        View Orders
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Menu Management -->
+    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-utensils text-green-600"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Popular Menu Items</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                <a href="{% url 'menu_item_list' %}" class="inline-flex items-center justify-center text-gray-600 hover:text-gray-800 font-medium text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All
+                </a>
+                <a href="{% url 'menu_item_create' %}" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Item
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto -mx-4 sm:-mx-6">
+            <div class="inline-block min-w-full align-middle">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders Today</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in popular_items %}
+                        <tr class="hover:bg-gray-50 transition duration-300">
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if item.menu_item__image %}
+                                    <img src="{{ item.menu_item__image.url }}" alt="{{ item.menu_item__name }}" class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-cover mr-3">
+                                    {% else %}
+                                    <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gray-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-utensils text-gray-400"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ item.menu_item__name }}</div>
+                                        <div class="text-xs sm:text-sm text-gray-500">{{ item.menu_item__description|truncatechars:30 }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 sm:px-3 py-1 text-xs rounded-full font-medium bg-blue-100 text-blue-800">
+                                    {{ item.menu_item__category__name }}
+                                </span>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${{ item.menu_item__price }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600">{{ item.total_ordered }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 sm:px-3 py-1 text-xs rounded-full font-medium {% if item.menu_item__available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if item.menu_item__available %}Available{% else %}Unavailable{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stock Management -->
+    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-boxes text-red-600"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Stock Management</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                <a href="{% url 'ingredient_list' %}" class="inline-flex items-center justify-center text-gray-600 hover:text-gray-800 font-medium text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Ingredients
+                </a>
+                <a href="{% url 'ingredient_create' %}" class="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-sm sm:text-base">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Ingredient
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto -mx-4 sm:-mx-6">
+            <div class="inline-block min-w-full align-middle">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingredient</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Minimum Required</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for stock in low_stock_items %}
+                        <tr class="hover:bg-gray-50 transition duration-300">
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ stock.ingredient.name }}</div>
+                                        <div class="text-xs sm:text-sm text-gray-500">{{ stock.ingredient.unit }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ stock.current_quantity }} {{ stock.ingredient.unit }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600">{{ stock.alert_threshold }} {{ stock.ingredient.unit }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 sm:px-3 py-1 text-xs rounded-full font-medium {% if stock.is_low %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                    {% if stock.is_low %}Low Stock{% else %}In Stock{% endif %}
+                            </span>
+                        </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600">{{ stock.last_updated|timesince }} ago</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                                <a href="{% url 'stock_update' stock.ingredient.id %}" class="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center">
+                                    <i class="fas fa-edit mr-1"></i>
+                                    Update
+                                </a>
+                                <a href="{% url 'stock_transaction_create' stock.ingredient.id %}" class="text-green-600 hover:text-green-700 font-medium inline-flex items-center">
+                                    <i class="fas fa-plus mr-1"></i>
+                                    Add Stock
+                                </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-blue-600"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Recent Orders</h2>
+            </div>
+            <a href="{% url 'orders' %}" class="inline-flex items-center justify-center text-gray-600 hover:text-gray-800 font-medium text-sm sm:text-base">
+                <i class="fas fa-list mr-2"></i>
+                View All Orders
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto -mx-4 sm:-mx-6">
+            <div class="inline-block min-w-full align-middle">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Table</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Server</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for order in recent_orders %}
+                        <tr class="hover:bg-gray-50 transition duration-300">
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">#{{ order.id }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600">Table {{ order.table.number }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if order.server.profile_picture %}
+                                    <img src="{{ order.server.profile_picture.url }}" alt="{{ order.server.username }}" class="h-6 w-6 sm:h-8 sm:w-8 rounded-full object-cover mr-2">
+                                    {% else %}
+                                    <div class="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gray-100 flex items-center justify-center mr-2">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="text-sm text-gray-600">{{ order.server.get_full_name }}</div>
+                                </div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 sm:px-3 py-1 text-xs rounded-full font-medium
+                                {% if order.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${{ order.total|floatformat:2 }}</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600">{{ order.created_at|timesince }} ago</div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 sm:px-3 py-1 text-xs rounded-full font-medium
+                                    {% if order.order_type == 'dine_in' %}bg-blue-100 text-blue-800
+                                    {% elif order.order_type == 'takeout' %}bg-purple-100 text-purple-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order.get_order_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                                <a href="{% url 'order_detail' order.id %}" class="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    View
+                                </a>
+                                {% if order.status == 'pending' %}
+                                <a href="{% url 'order_update' order.id %}" class="text-green-600 hover:text-green-700 font-medium inline-flex items-center">
+                                    <i class="fas fa-check mr-1"></i>
+                                    Complete
+                                </a>
+                                {% endif %}
+                            </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-history text-blue-600"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Recent Activity</h2>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                <a href="{% url 'activity_log' %}" class="inline-flex items-center justify-center text-gray-600 hover:text-gray-800 font-medium text-sm sm:text-base">
+                    <i class="fas fa-list mr-2"></i>
+                    View All Activity
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto -mx-4 sm:-mx-6">
+            <div class="inline-block min-w-full align-middle">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for activity in recent_activities %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ activity.created_at|date:"M d, Y H:i" }}
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ activity.user.username }}
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full font-medium
+                                    {% if activity.action_type == 'create' %}bg-green-100 text-green-800
+                                    {% elif activity.action_type == 'update' %}bg-blue-100 text-blue-800
+                                    {% elif activity.action_type == 'delete' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ activity.action_type|title }}
+                                </span>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 text-sm text-gray-500">
+                                {{ activity.description }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-4 sm:px-6 py-4 text-center text-sm text-gray-500">
+                                No recent activity to display
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+    </div>
+</div>
+{% endblock %}

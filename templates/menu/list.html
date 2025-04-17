@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Our Menu</h1>
+            <p class="text-gray-600 mt-2">Discover our delicious selection of dishes</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="{% url 'cart' %}" class="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-full font-medium transition duration-300">
+                <i class="fas fa-shopping-cart mr-2"></i>
+                View Cart
+                <span class="cart-count ml-2 bg-white text-amber-600 text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Search Form -->
+            <form method="get" class="relative">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search menu items..." 
+                       class="w-full p-4 pl-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-300">
+                <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+            </form>
+    
+    <!-- Category Filter -->
+        <div class="flex flex-wrap gap-2">
+                <a href="?category=all" 
+                   class="px-4 py-2 rounded-full text-sm font-medium transition duration-300 {% if not selected_category or selected_category == 'all' %}bg-amber-600 text-white hover:bg-amber-700{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    All Items
+            </a>
+            {% for category in categories %}
+                    <a href="?category={{ category.id }}" 
+                       class="px-4 py-2 rounded-full text-sm font-medium transition duration-300 {% if selected_category == category.id|stringformat:'s' %}bg-amber-600 text-white hover:bg-amber-700{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+        </div>
+    
+    <!-- Menu Items Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in menu_items %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300">
+                {% if item.image %}
+                    <div class="relative h-48">
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                        {% if not item.available %}
+                            <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                <span class="text-white font-medium">Currently Unavailable</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="h-48 bg-gray-100 flex items-center justify-center">
+                        <i class="fas fa-utensils text-gray-400 text-4xl"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xl font-bold text-gray-800">{{ item.name }}</h3>
+                        <span class="text-amber-600 font-bold">${{ item.price }}</span>
+                    </div>
+                    
+                    <p class="text-gray-600 text-sm mb-4">{{ item.description|truncatewords:20 }}</p>
+                    
+                    {% if item.available %}
+                    <div class="flex items-center justify-between">
+                            <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                                <button class="quantity-btn px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors" 
+                                        data-action="decrease" data-item-id="{{ item.id }}">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="quantity px-4 py-2 bg-white text-gray-800 font-medium" data-item-id="{{ item.id }}">1</span>
+                                <button class="quantity-btn px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors" 
+                                        data-action="increase" data-item-id="{{ item.id }}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                        </div>
+                            <button class="add-to-cart-btn bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center" 
+                                data-item-id="{{ item.id }}">
+                                <i class="fas fa-cart-plus mr-2"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                    {% else %}
+                        <button class="w-full bg-gray-100 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed flex items-center justify-center" disabled>
+                            <i class="fas fa-ban mr-2"></i>
+                        Currently Unavailable
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-span-full bg-white rounded-xl shadow-lg p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-search text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">No Items Found</h3>
+                <p class="text-gray-600 mb-4">No menu items match your search criteria.</p>
+                <a href="{% url 'menu' %}" class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center">
+                    <i class="fas fa-undo mr-2"></i>
+                    Clear Filters
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="notification" class="fixed bottom-4 right-4 transform translate-y-full opacity-0 transition-all duration-300">
+    <div class="bg-white rounded-xl shadow-lg p-4 flex items-center space-x-3 min-w-[300px]">
+        <div class="flex-shrink-0">
+            <i id="notification-icon" class="fas fa-check-circle text-green-500 text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <p id="notification-message" class="text-gray-800 font-medium"></p>
+        </div>
+        <button onclick="hideNotification()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize cart count
+    updateCartCount();
+
+    // Quantity buttons
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            const itemId = this.getAttribute('data-item-id');
+            const quantityElement = document.querySelector(`.quantity[data-item-id="${itemId}"]`);
+            let quantity = parseInt(quantityElement.textContent);
+            
+            if (action === 'increase') {
+                quantity++;
+            } else if (action === 'decrease' && quantity > 1) {
+                quantity--;
+            }
+            
+            quantityElement.textContent = quantity;
+        });
+    });
+
+    // Add to cart functionality
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const quantity = parseInt(document.querySelector(`.quantity[data-item-id="${itemId}"]`).textContent);
+            
+            addToCart(itemId, quantity);
+        });
+    });
+
+    function addToCart(itemId, quantity) {
+        fetch(`/cart/add/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({quantity: quantity})
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                updateCartCount();
+                showNotification(`${data.item_name} added to cart (${quantity}x)`, true);
+            } else {
+                showNotification(data.error || 'Failed to add item', false);
+            }
+        })
+        .catch(error => {
+            showNotification('Error adding item to cart: ' + error.message, false);
+            console.error('Error:', error);
+        });
+    }
+
+    function updateCartCount() {
+        fetch('/cart/count/')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelectorAll('.cart-count').forEach(el => {
+                    el.textContent = data.count || '0';
+                });
+            });
+    }
+});
+
+    function showNotification(message, isSuccess = true) {
+        const notification = document.getElementById('notification');
+    const notificationIcon = document.getElementById('notification-icon');
+        const notificationMessage = document.getElementById('notification-message');
+        
+    notificationIcon.className = isSuccess ? 
+        'fas fa-check-circle text-green-500 text-xl' : 
+        'fas fa-exclamation-circle text-red-500 text-xl';
+    
+        notificationMessage.textContent = message;
+    notification.classList.remove('translate-y-full', 'opacity-0');
+    
+    setTimeout(hideNotification, 3000);
+}
+
+function hideNotification() {
+    const notification = document.getElementById('notification');
+    notification.classList.add('translate-y-full', 'opacity-0');
+}
+</script>
+{% endblock %}

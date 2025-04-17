@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Welcome, {{ request.user.username }}</h1>
+            <p class="text-gray-600 mt-2">Manage your orders and reservations</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="{% url 'menu' %}" 
+               class="inline-flex items-center bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-full font-medium transition duration-300">
+                <i class="fas fa-utensils mr-2"></i>
+                Place New Order
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Orders Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Your Active Orders</h2>
+            <a href="{% url 'customer_orders' %}" class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center">
+                View all orders
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        
+        {% if active_orders %}
+        <div class="space-y-4">
+            {% for order in active_orders %}
+            <div class="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition duration-300">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 class="font-bold text-gray-800">Order #{{ order.id }}</h3>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium
+                                {% if order.status == 'ready' %}bg-green-100 text-green-800
+                                {% elif order.status == 'preparing' %}bg-blue-100 text-blue-800
+                                {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">
+                            <i class="fas fa-calendar-alt mr-1"></i>
+                            {{ order.created_at|date:"M j, Y g:i A" }}
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        {% if order.estimated_time %}
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-clock mr-1"></i>
+                            Ready in {{ order.estimated_time }} min
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'customer_order_detail' order.id %}" 
+                           class="inline-flex items-center text-amber-600 hover:text-amber-700 font-medium">
+                            View Details
+                            <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-gray-50 rounded-xl p-8 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-utensils text-gray-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">No Active Orders</h3>
+            <p class="text-gray-600 mb-4">You don't have any active orders at the moment.</p>
+            <a href="{% url 'customer_order' %}" class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                Place Your First Order
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="{% url 'cart' %}" 
+           class="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-300 group">
+            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition duration-300">
+                <i class="fas fa-shopping-cart mr-2"></i>
+            </div>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Your Cart</h3>
+            <p class="text-gray-600">Place a new order for pickup or delivery</p>
+        </a>
+        
+        <a href="{% url 'customer_orders' %}" 
+           class="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-300 group">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition duration-300">
+                <i class="fas fa-history text-green-600 text-2xl"></i>
+            </div>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Order History</h3>
+            <p class="text-gray-600">View your past orders and receipts</p>
+        </a>
+
+        <a href="{% url 'reservations' %}" 
+           class="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition duration-300 group">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition duration-300">
+                <i class="fas fa-calendar-alt text-blue-600 text-2xl"></i>
+            </div>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Table Booking</h3>
+            <p class="text-gray-600">Reserve your dining experience</p>
+        </a>
+    </div>
+    
+    <!-- Special Offers -->
+    <div class="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-6 border border-amber-200">
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-amber-200 rounded-full flex items-center justify-center">
+                    <i class="fas fa-gift text-amber-600 text-xl"></i>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-1">Today's Special Offer</h3>
+                <p class="text-gray-700 mb-2">
+                    Get 10% off your next order with code: 
+                    <span class="font-bold bg-white px-2 py-1 rounded-md text-amber-600">HUNGRY10</span>
+                </p>
+                <p class="text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Valid until the end of the day
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Create Order</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h2 class="text-xl font-semibold mt-6 mb-4">Order Items</h2>
+        {{ formset.management_form }}
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 border-b">Menu Item</th>
+                    <th class="px-4 py-2 border-b">Quantity</th>
+                    <th class="px-4 py-2 border-b">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                <tr>
+                    <td class="px-4 py-2 border-b">{{ form.menu_item }}</td>
+                    <td class="px-4 py-2 border-b">{{ form.quantity }}</td>
+                    <td class="px-4 py-2 border-b">{{ form.DELETE }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Create Order</button>
+    </form>
+</div>
+{% endblock %}

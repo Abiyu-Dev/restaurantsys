@@ -1,0 +1,16 @@
+Pillow
+psycopg2
+psycopg2-binary
+Django
+djangorestframework
+django-crispy-forms
+django-filter
+pytz
+sqlparse
+asgiref
+requests
+django-cors-headers
+django-environ
+django-extensions
+gunicorn
+whitenoise

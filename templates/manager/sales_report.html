@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Sales Report</h1>
+
+    <h2 class="text-xl font-semibold mt-6 mb-4">Summary</h2>
+    <p><strong>Total Sales:</strong> ${{ total_sales|floatformat:2 }}</p>
+    <p><strong>Total Orders:</strong> {{ total_orders }}</p>
+    <p><strong>Average Order Value:</strong> ${{ avg_order_value|floatformat:2 }}</p>
+
+    <h2 class="text-xl font-semibold mt-6 mb-4">Daily Sales</h2>
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+            <tr>
+                <th class="px-4 py-2 border-b">Date</th>
+                <th class="px-4 py-2 border-b">Total Sales</th>
+                <th class="px-4 py-2 border-b">Order Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for day in daily_sales %}
+            <tr>
+                <td class="px-4 py-2 border-b">{{ day.date }}</td>
+                <td class="px-4 py-2 border-b">${{ day.daily_total|floatformat:2 }}</td>
+                <td class="px-4 py-2 border-b">{{ day.order_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="text-xl font-semibold mt-6 mb-4">Completed Orders</h2>
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+            <tr>
+                <th class="px-4 py-2 border-b">Order ID</th>
+                <th class="px-4 py-2 border-b">Customer</th>
+                <th class="px-4 py-2 border-b">Total</th>
+                <th class="px-4 py-2 border-b">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in completed_orders %}
+            <tr>
+                <td class="px-4 py-2 border-b">{{ order.id }}</td>
+                <td class="px-4 py-2 border-b">{{ order.customer }}</td>
+                <td class="px-4 py-2 border-b">${{ order.total|floatformat:2 }}</td>
+                <td class="px-4 py-2 border-b">{{ order.created_at|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="text-xl font-semibold mt-6 mb-4">Stock Information</h2>
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+            <tr>
+                <th class="px-4 py-2 border-b">Ingredient</th>
+                <th class="px-4 py-2 border-b">Total Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stock_info %}
+            <tr>
+                <td class="px-4 py-2 border-b">{{ stock.name }}</td>
+                <td class="px-4 py-2 border-b">{{ stock.total_quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

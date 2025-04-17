@@ -1,0 +1,289 @@
+<!--templates/home.html-->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if user.role == 'customer' %}
+
+<!-- Hero Section -->
+<section class="relative bg-cover bg-center h-[600px]" style="background-image: url('{% static 'images/hero-bg.jpg' %}');">
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+    <div class="relative max-w-7xl mx-auto h-full flex items-center px-4">
+        <div class="text-white max-w-2xl">
+            <h1 class="text-5xl font-bold mb-4 leading-tight">Experience Culinary Excellence</h1>
+            <p class="text-xl mb-8 text-gray-200">Indulge in our carefully crafted dishes, made with passion and the finest ingredients</p>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{% url 'menu' %}" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full font-medium transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-utensils mr-2"></i>
+                    View Menu
+                </a>
+                <a href="{% url 'reservation_create' %}" class="bg-white hover:bg-gray-100 text-amber-800 px-8 py-3 rounded-full font-medium transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Book a Table
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Menu Items -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Our Signature Dishes</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Discover our chef's carefully curated selection of signature dishes, each telling a unique culinary story.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for item in featured_items %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 group">
+                <div class="h-48 overflow-hidden">
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-gray-800">{{ item.name }}</h3>
+                        <span class="text-amber-600 font-bold">${{ item.price }}</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">{{ item.description|truncatewords:15 }}</p>
+                    <button class="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-full text-sm font-medium transition duration-300 add-to-cart flex items-center justify-center" data-item-id="{{ item.id }}">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-12">
+            <a href="{% url 'menu' %}" class="inline-flex items-center border-2 border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white px-6 py-3 rounded-full font-medium transition duration-300">
+                <span>View Full Menu</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">How It Works</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Simple steps to enjoy your perfect dining experience</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-6">
+                <div class="bg-amber-100 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-utensils text-amber-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Browse Our Menu</h3>
+                <p class="text-gray-600">Explore our diverse selection of dishes, from appetizers to desserts</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="bg-amber-100 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-shopping-cart text-amber-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Order Online</h3>
+                <p class="text-gray-600">Choose delivery or pickup and customize your order to your liking</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="bg-amber-100 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-concierge-bell text-amber-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Enjoy Your Meal</h3>
+                <p class="text-gray-600">Track your order status and savor every delicious bite</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Order Status Section -->
+{% if user.is_authenticated and active_orders %}
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Your Current Orders</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Track the status of your ongoing orders</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-6 max-w-3xl mx-auto">
+            {% for order in active_orders %}
+            <div class="mb-6 last:mb-0 border-b pb-6 last:border-b-0 last:pb-0">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-gray-800">Order #{{ order.id }}</h3>
+                    <span class="px-4 py-1 rounded-full text-sm font-medium 
+                        {% if order.status == 'preparing' %}bg-blue-100 text-blue-800
+                        {% elif order.status == 'ready' %}bg-green-100 text-green-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <i class="fas {% if order.status == 'preparing' %}fa-clock
+                            {% elif order.status == 'ready' %}fa-check-circle
+                            {% else %}fa-hourglass-half{% endif %} mr-2"></i>
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+                <div class="text-gray-600 mb-4">
+                    <i class="far fa-calendar-alt mr-2"></i>
+                    {{ order.created_at|date:"F j, Y g:i A" }}
+                </div>
+                <div class="mb-4 space-y-2">
+                    {% for item in order.orderitem_set.all %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">{{ item.quantity }}x {{ item.menu_item.name }}</span>
+                        <span class="text-gray-600">${{ item.subtotal }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between font-bold border-t pt-3 text-gray-800">
+                    <span>Total</span>
+                    <span>${{ order.total }}</span>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'customer_order_detail' order.id %}" class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center">
+                        <span>View Order Details</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Testimonials -->
+<section class="py-20 bg-amber-50">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">What Our Customers Say</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Real experiences from our valued customers</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition duration-300">
+                <div class="flex items-center mb-4">
+                    <div class="text-amber-400 text-2xl mr-2">★★★★★</div>
+                    <span class="text-gray-600">- Michael T.</span>
+                </div>
+                <p class="text-gray-700 italic">"The steak was cooked to perfection and the service was exceptional. I'll definitely be back!"</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition duration-300">
+                <div class="flex items-center mb-4">
+                    <div class="text-amber-400 text-2xl mr-2">★★★★☆</div>
+                    <span class="text-gray-600">- Sarah K.</span>
+                </div>
+                <p class="text-gray-700 italic">"The online ordering system was so easy to use. My food arrived hot and exactly as ordered."</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-20 bg-gray-800 text-white">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Ready to Experience Great Food?</h2>
+        <p class="text-xl mb-8 text-gray-300">Join our community of food lovers and enjoy exclusive offers</p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'menu' %}" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-full font-medium transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-utensils mr-2"></i>
+                    Order Now
+                </a>
+            {% else %}
+                <a href="{% url 'signup' %}" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-4 rounded-full font-medium transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Create Account
+                </a>
+                <a href="{% url 'login' %}" class="bg-white hover:bg-gray-100 text-gray-800 px-8 py-4 rounded-full font-medium transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Sign In
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Floating Cart Button -->
+<div class="fixed bottom-8 right-8">
+    <a href="{% url 'cart' %}" class="bg-amber-600 hover:bg-amber-700 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition duration-300 group">
+        <i class="fas fa-shopping-cart text-2xl"></i>
+        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full cart-count group-hover:scale-110 transition duration-300">0</span>
+    </a>
+</div>
+
+<script>
+// Add to cart functionality
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+        const itemId = this.getAttribute('data-item-id');
+        fetch(`/cart/add/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({quantity: 1})
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('.cart-count').textContent = data.cart_count;
+            // Show success message
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-500';
+            toast.textContent = 'Item added to cart!';
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 2000);
+        });
+    });
+});
+</script>
+
+{% else %}
+
+<!-- Staff/Manager Home -->
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to Restaurant Management System</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto">Efficiently manage your restaurant operations with our comprehensive management tools</p>
+    </div>
+    
+    {% if user.is_authenticated %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <a href="{% url 'menu' %}" class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 group">
+                <div class="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-utensils text-amber-600 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">Menu Management</h2>
+                <p class="text-gray-600 text-center">View and manage menu items, prices, and categories</p>
+            </a>
+            <a href="{% url 'tables' %}" class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 group">
+                <div class="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-chair text-amber-600 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">Table Management</h2>
+                <p class="text-gray-600 text-center">Manage restaurant tables and seating arrangements</p>
+            </a>
+            <a href="{% url 'orders' %}" class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300 group">
+                <div class="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-clipboard-list text-amber-600 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">Order Management</h2>
+                <p class="text-gray-600 text-center">Create and track orders, manage deliveries</p>
+            </a>
+        </div>
+    {% else %}
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
+            <div class="bg-amber-100 w-20 h-20 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <i class="fas fa-lock text-amber-600 text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Access Required</h2>
+            <p class="text-gray-600 mb-6">Please login to access the management system</p>
+            <a href="{% url 'login' %}" class="inline-flex items-center bg-amber-600 text-white px-6 py-3 rounded-full font-medium hover:bg-amber-700 transition duration-300">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Login
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endif %}
+{% endblock %}

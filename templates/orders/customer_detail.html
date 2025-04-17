@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Order #{{ order.id }}</h1>
+        <span class="px-3 py-1 rounded-full 
+            {% if order.status == 'completed' %}bg-green-100 text-green-800
+            {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="border rounded-lg p-4">
+            <h3 class="font-semibold text-lg mb-3">Order Details</h3>
+            <div class="space-y-2">
+                <p><strong>Date:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+                <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+                {% if order.status == 'preparing' and order.estimated_time %}
+                <p><strong>Estimated Ready:</strong> {{ order.estimated_time }} minutes</p>
+                {% endif %}
+                {% if order.notes %}
+                <p><strong>Your Notes:</strong> {{ order.notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="border rounded-lg p-4">
+            <h3 class="font-semibold text-lg mb-3">Items</h3>
+            <div class="space-y-3">
+                {% for item in order.items.all %}
+                <div class="flex justify-between border-b pb-2">
+                    <div>
+                        <p>{{ item.quantity }} × {{ item.menu_item.name }}</p>
+                        {% if item.special_requests %}
+                        <p class="text-sm text-gray-600">{{ item.special_requests }}</p>
+                        {% endif %}
+                    </div>
+                    <p>${{ item.menu_item.price|floatformat:2 }}</p>
+                </div>
+                {% endfor %}
+                <div class="flex justify-between font-bold pt-2">
+                    <span>Total:</span>
+                    <span>${{ order.total|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="border-t pt-4">
+        <a href="{% url 'customer_orders' %}" 
+           class="text-blue-600 hover:text-blue-800">
+            &larr; Back to Your Orders
+        </a>
+    </div>
+</div>
+{% endblock %}

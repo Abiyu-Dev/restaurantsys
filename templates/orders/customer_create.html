@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-6">Place Your Order</h1>
+    
+    <form method="post" id="order-form">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 gap-6 mb-6">
+            <!-- Order Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Order Type</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="order_type" value="pickup" checked 
+                               class="h-5 w-5 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2">Pickup</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="order_type" value="delivery" 
+                               class="h-5 w-5 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2">Delivery</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Delivery Address (hidden by default) -->
+            <div id="delivery-address" class="hidden">
+                <h3 class="text-lg font-medium mb-2">Delivery Address</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Address</label>
+                        <textarea name="address" rows="3" class="mt-1 block w-full border rounded-md"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input type="text" name="phone" class="mt-1 block w-full border rounded-md">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Menu Items -->
+            <div>
+                <h3 class="text-lg font-medium mb-2">Your Order</h3>
+                <div id="menu-items" class="space-y-4">
+                    {% for item in menu_items %}
+                    <div class="flex items-center justify-between border p-3 rounded-lg">
+                        <div>
+                            <h4 class="font-medium">{{ item.name }}</h4>
+                            <p class="text-sm text-gray-600">${{ item.price }}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <button type="button" class="quantity-minus px-2 py-1 bg-gray-200 rounded-l">-</button>
+                            <input type="number" name="item_{{ item.id }}" value="0" min="0" 
+                                   class="w-12 text-center border-t border-b">
+                            <button type="button" class="quantity-plus px-2 py-1 bg-gray-200 rounded-r">+</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Special Instructions -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Special Instructions</label>
+                <textarea name="notes" rows="2" class="mt-1 block w-full border rounded-md"></textarea>
+            </div>
+        </div>
+        
+        <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700">
+            Place Order
+        </button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle delivery address
+    const deliveryRadio = document.querySelector('input[value="delivery"]');
+    const addressDiv = document.getElementById('delivery-address');
+    
+    deliveryRadio.addEventListener('change', function() {
+        addressDiv.classList.toggle('hidden', !this.checked);
+    });
+    
+    // Quantity controls
+    document.querySelectorAll('.quantity-plus').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            input.value = parseInt(input.value) + 1;
+        });
+    });
+    
+    document.querySelectorAll('.quantity-minus').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.nextElementSibling;
+            if (parseInt(input.value) > 0) {
+                input.value = parseInt(input.value) - 1;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

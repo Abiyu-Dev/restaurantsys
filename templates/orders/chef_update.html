@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-6">Update Order #{{ object.id }}</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Current Status</label>
+                <p class="mt-1">{{ object.get_status_display }}</p>
+            </div>
+            
+            {{ form.as_p }}
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+            <a href="{% url 'chef_orders' %}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                Cancel
+            </a>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Update Order
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

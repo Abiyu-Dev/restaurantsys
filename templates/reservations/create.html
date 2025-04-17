@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-3xl font-bold mb-6">Make a Reservation</h1>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+            <p class="font-medium">
+                <i class="fas fa-info-circle mr-2"></i>
+                Currently {{ available_tables }} tables available
+            </p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Table</label>
+                {{ form.table }}
+                {% if form.table.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.table.errors|join:", " }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Date & Time</label>
+                {{ form.reservation_time }}
+                {% if form.reservation_time.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.reservation_time.errors|join:", " }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Party Size</label>
+                {{ form.party_size }}
+                {% if form.party_size.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.party_size.errors|join:", " }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Special Requests</label>
+                {{ form.special_requests }}
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg">
+                Confirm Reservation
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

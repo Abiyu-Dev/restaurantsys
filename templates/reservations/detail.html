@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Reservation #{{ reservation.id }}</h1>
+        
+        {% if can_edit %}
+        <div class="flex space-x-3">
+            <a href="{% url 'reservation_update' reservation.pk %}" 
+               class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                Edit
+            </a>
+            <a href="{% url 'reservation_delete' reservation.pk %}" 
+               class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                Cancel
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Reservation Details Card -->
+        <div class="border rounded-lg p-4">
+            <h3 class="font-semibold text-lg mb-2">Reservation Details</h3>
+            <div class="space-y-2">
+                <p><span class="font-medium">Customer:</span> {{ reservation.customer.get_full_name|default:reservation.customer.username }}</p>
+                <p><span class="font-medium">Table:</span> #{{ reservation.table.number }} ({{ reservation.table.capacity }} people)</p>
+                <p><span class="font-medium">Date & Time:</span> {{ reservation.reservation_time|date:"F j, Y" }} at {{ reservation.reservation_time|time:"g:i A" }}</p>
+                <p><span class="font-medium">Party Size:</span> {{ reservation.party_size }}</p>
+                <p><span class="font-medium">Status:</span> 
+                    <span class="px-2 py-1 text-xs rounded-full 
+                        {% if reservation.status == 'confirmed' %}bg-green-100 text-green-800
+                        {% elif reservation.status == 'canceled' %}bg-red-100 text-red-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ reservation.get_status_display }}
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Special Requests Card -->
+        <div class="border rounded-lg p-4">
+            <h3 class="font-semibold text-lg mb-2">Special Requests</h3>
+            {% if reservation.special_requests %}
+                <p class="text-gray-700">{{ reservation.special_requests }}</p>
+            {% else %}
+                <p class="text-gray-500">No special requests</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Order History Section (if applicable) -->
+    {% if reservation.orders.exists %}
+    <div class="border-t pt-6">
+        <h3 class="text-xl font-semibold mb-4">Order History</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for order in reservation.orders.all %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ order.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ order.created_at|date:"M j, Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif order.status == 'completed' %}bg-green-100 text-green-800
+                                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ order.total|floatformat:2 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'order_detail' order.pk %}" class="text-blue-600 hover:text-blue-800">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="border-t pt-6 mt-6">
+        <a href="{% url 'reservations' %}" class="text-blue-600 hover:text-blue-800">
+            &larr; Back to all reservations
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-6">Kitchen Orders</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {% for order in orders %}
+        <div class="border rounded-lg p-4 {% if order.status == 'ready' %}bg-green-50{% elif order.status == 'received' %}bg-yellow-50{% else %}bg-white{% endif %}">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold">Order #{{ order.id }}</h3>
+                <span class="px-2 py-1 text-xs rounded-full 
+                    {% if order.status == 'ready' %}bg-green-100 text-green-800
+                    {% elif order.status == 'received' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            
+            <p class="text-sm mb-1"><strong>Table:</strong> {{ order.table.number }}</p>
+            <p class="text-sm mb-1"><strong>Server:</strong> {{ order.server.username }}</p>
+            
+            <div class="mt-3 border-t pt-2">
+                <h4 class="font-semibold mb-1">Items:</h4>
+                <ul class="list-disc pl-5 text-sm">
+                    {% for item in orders.items.all %}
+                    <li>{{ item.quantity }}x {{ item.menu_item.name }}
+                        {% if item.special_requests %}({{ item.special_requests }}){% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            {% if order.notes %}
+            <div class="mt-2 border-t pt-2">
+                <p class="text-sm"><strong>Notes:</strong> {{ order.notes }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="mt-4 flex justify-end">
+                <a href="{% url 'chef_update_order' order.pk %}" 
+                   class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                    Update Status
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center text-gray-500 py-8">
+            No active orders in the kitchen
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

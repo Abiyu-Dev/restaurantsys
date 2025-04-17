@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Delivery Orders</h1>
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+            <tr>
+                <th class="px-4 py-2 border-b">Order ID</th>
+                <th class="px-4 py-2 border-b">Customer</th>
+                <th class="px-4 py-2 border-b">Status</th>
+                <th class="px-4 py-2 border-b">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td class="px-4 py-2 border-b">{{ order.id }}</td>
+                <td class="px-4 py-2 border-b">{{ order.customer.username }}</td>
+                <td class="px-4 py-2 border-b">{{ order.status }}</td>
+                <td class="px-4 py-2 border-b">
+                    {% if order.status == 'ready' %}
+                    <a href="{% url 'accept_order' order.id %}" class="text-blue-500 hover:underline">Accept</a>
+                    {% elif order.status == 'out_for_delivery' %}
+                    <a href="{% url 'complete_order' order.id %}" class="text-green-500 hover:underline">Complete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

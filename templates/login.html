@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+        <div class="text-center mb-8">
+            <i class="fas fa-utensils text-amber-600 text-4xl mb-4"></i>
+            <h1 class="text-2xl font-bold text-gray-800">Welcome Back</h1>
+            <p class="text-gray-600 mt-2">Sign in to your account</p>
+        </div>
+        
+        <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+            <input type="text" name="username" id="username" required 
+                           class="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                           placeholder="Enter your username">
+                </div>
+        </div>
+        <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+            <input type="password" name="password" id="password" required 
+                           class="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                           placeholder="Enter your password">
+                </div>
+        </div>
+        <div>
+                <button type="submit" 
+                        class="w-full bg-amber-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Sign In
+            </button>
+        </div>
+    </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-600">
+                Don't have an account? 
+                <a href="{% url 'signup' %}" class="text-amber-600 hover:text-amber-700 font-medium transition-colors">
+                    Sign up here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

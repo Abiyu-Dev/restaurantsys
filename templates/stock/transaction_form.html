@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">{{ title }}</h1>
+        <p class="text-gray-600 mt-1">Record a stock transaction for {{ ingredient.name }}</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label for="{{ form.transaction_type.id_for_label }}" class="block text-sm font-medium text-gray-700">Transaction Type</label>
+                    {{ form.transaction_type }}
+                    {% if form.transaction_type.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.transaction_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">Quantity ({{ ingredient.unit }})</label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.quantity.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.unit_price.id_for_label }}" class="block text-sm font-medium text-gray-700">Unit Price ($)</label>
+                        {{ form.unit_price }}
+                        {% if form.unit_price.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.unit_price.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="{{ form.reference_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Reference Number</label>
+                    {{ form.reference_number }}
+                    {% if form.reference_number.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.reference_number.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700">Notes</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'ingredient_list' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Record Transaction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
